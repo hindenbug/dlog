@@ -48,6 +48,7 @@ func newIndex(f *os.File, c Config) (*index, error) {
 		return nil, err
 	}
 
+	// Map the grown file to memory.
 	if idx.mmap, err = gommap.Map(
 		idx.file.Fd(), gommap.PROT_READ|gommap.PROT_WRITE,
 		gommap.MAP_SHARED); err != nil {
@@ -90,8 +91,7 @@ func (i *index) Read(offset int64) (output uint32, pos uint64, err error) {
 	}
 
 	if offset == -1 {
-		// this is called in newSegment to get the next offset
-		// jump to the last offset
+		// The last entity was requested
 		output = uint32((i.size / uint64(entryWidth)) - 1)
 	} else {
 		output = uint32(offset)
@@ -99,6 +99,7 @@ func (i *index) Read(offset int64) (output uint32, pos uint64, err error) {
 
 	pos = uint64(output) * uint64(entryWidth)
 
+	// Check that the index actually contains the record with the given offset.
 	if i.size < pos+uint64(entryWidth) {
 		return 0, 0, io.EOF
 	}

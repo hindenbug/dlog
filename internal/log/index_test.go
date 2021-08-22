@@ -14,6 +14,7 @@ func TestIndex(t *testing.T) {
 	require.NoError(t, err)
 	defer os.Remove(f.Name())
 
+	// Use a configuration that allows enough bytes for the test.
 	c := Config{}
 	c.Segment.MaxIndexBytes = 1024
 	idx, err := newIndex(f, c)

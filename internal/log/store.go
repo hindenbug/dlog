@@ -8,11 +8,14 @@ import (
 )
 
 const (
+	// lenWidth determines how many bytes will be used to store the length of the record.
 	limit = 8
 )
 
 type store struct {
+	// type embedding of an os file.
 	*os.File
+
 	mu     sync.Mutex
 	buffer *bufio.Writer
 	size   uint64
@@ -30,6 +33,8 @@ func newStore(f *os.File) (*store, error) {
 
 }
 
+// Append writes the provided bytes as a record to the end of the store.
+// Returns the size fo the record and the position of the record within the store.
 func (s *store) Append(p []byte) (n uint64, pos uint64, err error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -67,7 +72,8 @@ func (s *store) Read(pos uint64) ([]byte, error) {
 	if _, err := s.File.ReadAt(size, int64(pos)); err != nil {
 		return nil, err
 	}
-	// fetching and retuning the record.
+
+	// Read the actual record data given its offset and size.
 	b := make([]byte, binary.BigEndian.Uint64(size))
 	if _, err := s.File.ReadAt(b, int64(pos+limit)); err != nil {
 		return nil, err
