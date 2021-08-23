@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	// lenWidth determines how many bytes will be used to store the length of the record.
+	// limit determines how many bytes will be used to store the length of the record.
 	limit = 8
 )
 
