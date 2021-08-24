@@ -13,6 +13,7 @@ import (
 func TestLog(t *testing.T) {
 	for scenario, fn := range map[string]func(t *testing.T, log *Log){
 		"append and read a record succeeds": testAppendRead,
+		"offset out of range error":         testOutOfRangeErr,
 		"init with existing segments":       testInitExisting,
 		"reader":                            testReader,
 	} {
@@ -78,4 +79,11 @@ func testReader(t *testing.T, log *Log) {
 	err = proto.Unmarshal(b[limit:], read)
 	require.NoError(t, err)
 	require.Equal(t, apnd.Value, read.Value)
+}
+
+func testOutOfRangeErr(t *testing.T, log *Log) {
+	read, err := log.Read(1)
+	require.Nil(t, read)
+	apiErr := err.(api.ErrOffsetOutOfRange)
+	require.Equal(t, uint64(1), apiErr.Offset)
 }
